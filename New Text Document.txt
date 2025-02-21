@@ -1,0 +1,3 @@
+Pada kota mana yang terbanyak terdaftar dalam aplikasi ini ? bisa nanti dibuat 3 peringkat. setelah itu bisa di fokuskan dalam tren dkota itu.
+pada kota mana yang memiliki pembeli terbanyak (atau id apa yang memiliki pembelian terbanyak) atau bisa juga 5 terbanyak
+Produk dengan kategori apa yang terbanyak terjual
