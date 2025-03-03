@@ -143,29 +143,24 @@ df = df[(df['UnitPrice'] > 0) & (df['Quantity'] >= -1000) & (df['Quantity'] <= 1
 print("\nStatistik Setelah Filter:")
 print(df.describe())
 
-# Membuat fitur tambahan untuk clustering (minimal 5 fitur)
-df['Month'] = df['InvoiceDate'].dt.month  # Numerikal
-df['Hour'] = df['InvoiceDate'].dt.hour    # Numerikal
-
-# Aggregasi data per pelanggan dengan 5+ fitur
+# Aggregasi data per pelanggan dengan 5+ fitur dari dataset asli
 customer_data = df.groupby('CustomerID').agg({
     'TotalSpend': 'sum',           # Numerikal 1: Total pengeluaran
     'Quantity': 'mean',           # Numerikal 2: Rata-rata jumlah barang
     'UnitPrice': 'mean',          # Numerikal 3: Rata-rata harga per unit
-    'Month': 'mean',              # Numerikal 4: Rata-rata bulan pembelian
-    'Country': 'nunique',         # Numerikal dari kategorikal 5: Jumlah negara unik
-    'Description': lambda x: x.nunique()  # Numerikal dari kategorikal 6: Jumlah produk unik
+    'Country': 'nunique',         # Numerikal dari kategorikal 4: Jumlah negara unik
+    'Description': lambda x: x.nunique()  # Numerikal dari kategorikal 5: Jumlah produk unik
 }).reset_index()
 
 # Rename kolom
 customer_data.columns = ['CustomerID', 'TotalSpend', 'AvgQuantity', 
-                        'AvgUnitPrice', 'AvgMonth', 'NumCountries', 'NumProducts']
+                        'AvgUnitPrice', 'NumCountries', 'NumProducts']
 
 # **6. Pembangunan Model Clustering**
 
 # a. Normalisasi data
 scaler = StandardScaler()
-features = ['TotalSpend', 'AvgQuantity', 'AvgUnitPrice', 'AvgMonth', 'NumCountries', 'NumProducts']
+features = ['TotalSpend', 'AvgQuantity', 'AvgUnitPrice', 'NumCountries', 'NumProducts']
 X = scaler.fit_transform(customer_data[features])
 
 # b. Model clustering baseline (semua fitur)
@@ -175,7 +170,7 @@ silhouette_base = silhouette_score(X, customer_data['Cluster_Base'])
 print(f"\nSilhouette Score (Baseline - Semua Fitur): {silhouette_base:.3f}")
 
 # c. Feature Selection
-selector = SelectKBest(score_func=f_classif, k=4)  # Memilih 4 fitur terbaik
+selector = SelectKBest(score_func=f_classif, k=3)  # Memilih 3 fitur terbaik (karena 5 fitur awal)
 X_selected = selector.fit_transform(X, customer_data['Cluster_Base'])
 selected_features_mask = selector.get_support()
 selected_features = np.array(features)[selected_features_mask]
@@ -225,8 +220,8 @@ for label in ['Low Spender', 'High Spender']:
 
 # i. Perbandingan Silhouette Score
 print("\nPerbandingan Silhouette Score:")
-print(f"Baseline (6 fitur): {silhouette_base:.3f}")
-print(f"Dengan Feature Selection (4 fitur): {silhouette_selected:.3f}")
+print(f"Baseline (5 fitur): {silhouette_base:.3f}")
+print(f"Dengan Feature Selection (3 fitur): {silhouette_selected:.3f}")
 print(f"Perubahan: {(silhouette_selected - silhouette_base):.3f}")
 
 # **7. Mengeksport Data**
